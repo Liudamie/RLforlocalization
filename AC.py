@@ -17,7 +17,9 @@ class PolicyNet(torch.nn.Module):
         x = F.relu(self.fc1(x))
         mean = self.fc_mean(x)
         log_std = self.fc_std(x)
-        std = torch.exp(log_std)  # 标准差
+        mean = torch.tanh(mean) * 0.03  # 将均值限制在 [-0.01, 0.01] 之间
+        std = torch.exp(log_std)
+        std = torch.clamp(std, 1e-3, 0.03)  # 将标准差限制在 [1e-3, 0.01] 之间
         return mean, std
 
 class ValueNet(torch.nn.Module):
